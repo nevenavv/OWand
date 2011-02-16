@@ -6,9 +6,15 @@ OWL Wand for Magic Potion
 
 Wikis coming soon
 
+## Status
+
+ow-export-goal [in-progress]
+ow-import-goal [still nil]
+
 ## Note
 
-Working with patched version of Magic Potion (in local-lib).
+Working with patched version of Magic Potion (in local-lib) (added some meta on concept predicate)
+In your model you should use predicates from ow.restrictions
 
 ## Usage
 
