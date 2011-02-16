@@ -1,11 +1,23 @@
-# ow
+# OWand
 
 OWL Wand for Magic Potion
+
+## More info
+
+Wikis coming soon
+
+## Note
+
+Working with patched version of Magic Potion (in local-lib).
 
 ## Usage
 
 Use as dev-tool (see test/examples)
 Use as lein plugin (ow-export, ow-import)
+
+#### Configuration
+Set ow-config map (see ow.core) in project.clj or when calling OWand goals.
+Be sure to state you MP domain namespace (for MP->OWL).
 
 ## Installation
 
