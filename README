@@ -4,11 +4,12 @@ OWL Wand for Magic Potion
 
 ## Usage
 
-FIXME: write
+Use as dev-tool (see test/examples)
+Use as lein plugin (ow-export, ow-import)
 
 ## Installation
 
-FIXME: write
+Build with Leiningen
 
 ## License
 
