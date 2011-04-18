@@ -23,6 +23,16 @@
   [s to-trim]
   (re-sub (re-pattern (str (Pattern/quote to-trim) "$" )) "" s))
 
+(defn trim-ending
+  [ending]
+  (fn [trim-what] 
+    (second (re-matches (re-pattern (str "(.*)" ending "$")) trim-what))))
+
+(defn trim-ending-?
+  "Returns trimed string if ends with '?', else nil."
+  [thing]
+  ((trim-ending "\\?") thing))
+
 ;; io ---------------------
 (defn create-file
   [dir file-name source]
@@ -61,13 +71,6 @@
            ts (vec (distinct ts-pre))]
        (with-meta ts old-meta))))
 
-(defn assoc-new
-   "Add kv pair if m doesn't have k and v is not nil."
-   [m k v]
-   (if (and ((comp not contains?) m k) v)
-       (assoc m k v)
-       m))
-
 ;; xml --------------------
 (defn encode
   ; from ring (url-encode)
@@ -84,9 +87,9 @@
   (URLDecoder/decode encoded (or encoding "UTF-8")))
 
 ;; ow ---------------------
-(defn ont-name [ont-config]
+(defn ont-name-for-pr [ont-config]
   ; and slashes in name (iri..)??
   (s/replace (:ontology-name ont-config) #" " "-"))
 
 (defn ont-full-ns [ont-config]
-  (str (trim-ending-str (:ont-root-domain-ns ont-config) "/") "/" (ont-name ont-config)))
+  (str (trim-ending-str (:ont-root-domain-ns ont-config) "/") "/" (ont-name-for-pr ont-config)))

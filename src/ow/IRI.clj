@@ -15,6 +15,7 @@
     (if-not (resolve pnamesym) (throw (Exception. "Namespace not defined.")))
     (str (eval pnamesym) local)))
     
+;;---start of comment
 (comment
 (defmacro iri
   [compact]
@@ -197,5 +198,5 @@
 	xsd:minLength
 	xsd:pattern
 ])
-;end of comment
 )
+;;---end of comment

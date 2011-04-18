@@ -1,4 +1,6 @@
-(ns ow.restrictions)
+(ns ow.restrictions
+  (:use [robert.hooke]
+        [org.uncomplicate.magicpotion.predicates]))
 
 (defn of-type
   [x]
@@ -133,8 +135,8 @@
 	  (fn [x]
 	    (and (> x l) (< x g)))
 	    {:restriction ::n-between
-	    :restriction-with [l g]
-      :restriction-on (of-type l)}))
+	     :restriction-with [l g]
+       :restriction-on (of-type l)}))
 
 ;; dateTime restrictions --------------------
 (defn before
@@ -163,3 +165,30 @@
 	    {:restriction ::d-between
 	     :restriction-with [b a]
        :restriction-on :dateTime}))
+
+;; prepare MP predicates - restriciton fns
+(defn switch-min-length
+  [f low]
+  (s-min-length low))
+
+(defn switch-max-length
+  [f high]
+  (s-max-length high))
+
+(defn switch-length-between
+  [f low high]
+  (s-length-between low high))
+
+(defn switch-between
+  [f low high]
+  (n-between low high))
+
+(defn switch-string?
+  [f x]
+  (is-string? x))
+  
+(add-hook #'min-length switch-min-length)
+(add-hook #'max-length switch-max-length)
+(add-hook #'length-between switch-length-between)
+(add-hook #'between switch-between)
+(add-hook #'string? switch-string?)

@@ -1,13 +1,13 @@
 (ns ow.core
-  (:require [ow.export :as e]))
+  (:use [ow.export :as e]))
 
 (def *ow-config* (atom {:from-format :rdf/xml ;format of output owl file  (supported :rdf/xml, :turtle, :n3)
                         :to-format :rdf/xml
                         :ontology-name "apple"
                         :from-owl-location "/" ;location of owl files for import (transformation to mp model)
                         :to-owl-location "ow-export/" ;location where owl generated file will be set
-                        :mp-domain-package-generated "domain" ;package of generated magic potion model 
-                        :mp-domain-package-source 'ow.test.examples.my-domain ;source package of magic potion model (to be transformed to owl)
+                        :mp-domain-ns-generated "domain" ;ns of generated magic potion model 
+                        :mp-domain-ns-source 'ow.my-domain ;'ow.test.examples.my-domain ;source ns of magic potion model (to be transformed to owl)
                         :ont-root-domain-ns "http://example.org/ontologies/"
                         }))
 
@@ -24,6 +24,8 @@
   []
   (owc-update-default *ow-cc*))
   
+;; goals ------------------------------------------
+
 (defn ow-export-goal
   "Exports Magic Potion model to OWL file."
   ([]

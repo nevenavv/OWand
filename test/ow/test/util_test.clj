@@ -27,8 +27,8 @@
   (is (= {:a 1 :b 2 :c 3 :d 4} (assoc-new {:a 1 :b 2 :c 3} :d 4))))
 
 ;; ow ---------------------
-(deftest test-ont-name
-  (is (= "my-ontology" (ont-name {:ontology-name "my ontology"}))))
+(deftest test-ont-name-for-pr
+  (is (= "my-ontology" (ont-name-for-pr {:ontology-name "my ontology"}))))
 
 (deftest test-ont-full-ns
   (is (= "http://www.meme.org/my-ontology" (ont-full-ns {:ont-root-domain-ns "http://www.meme.org" :ontology-name "my ontology"})))
