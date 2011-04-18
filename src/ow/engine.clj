@@ -57,7 +57,7 @@
                                                                       (set restrictions) super)]
                                                (merge-with conj res {:dt-properties {:name thing-name :all-restrictions all-restrictions}}))))
 								                       :else res)))
-								           {:concepts #{}
+								           {:concepts #{} 
 								            :dt-properties #{}
 								            :obj-properties #{}
                             ;helpers
