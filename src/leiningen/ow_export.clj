@@ -1,11 +1,9 @@
 (ns leiningen.ow-export
   (:use [ow.core]
-        [ow.util]
-        [leininget.util]))
+        [leiningen.util]))
 
 (defn ow-export
   [project]
-  (let [config (get-config project)]
-    (if config 
-            (ow-export-goal config)
-            (ow-export-goal))))
+  (if-let [config (get-config project)]
+		(ow-export-goal config)
+		(ow-export-goal)))
