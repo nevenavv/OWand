@@ -3,7 +3,7 @@
 
 (def *ow-config* (atom {:from-format :rdf/xml ;format of output owl file  (supported :rdf/xml, :turtle, :n3)
                         :to-format :rdf/xml
-                        :ontology-name "apple"
+                        :ontology-name "example"
                         :from-owl-location "/" ;location of owl files for import (transformation to mp model)
                         :to-owl-location "ow-export/" ;location where owl generated file will be set
                         :mp-domain-ns-generated "domain" ;ns of generated magic potion model 
