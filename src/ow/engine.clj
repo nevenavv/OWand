@@ -79,17 +79,17 @@
                                      (merge-with conj res {:dt-properties {:name thing-name :all-restrictions all-restrictions}
                                                            :not-nil-properties (if (is-not-nil-property? all-restrictions) thing-name)}))))
                                :else res)))
-                         {:concepts #{} 
-                          :dt-properties #{}
-                          :obj-properties #{}
-                          ;helpers
-                          :concept-names #{}
-                          :obj-property-names #{}
-                          :not-nil-properties #{}}
-                         (gather-things mp-model))
+                   {:concepts #{} 
+                    :dt-properties #{}
+                    :obj-properties #{}
+                    ;helpers
+                    :concept-names #{}
+                    :obj-property-names #{}
+                    :not-nil-properties #{}}
+                   (gather-things mp-model))
         supers-childern_ (reduce #(merge-with concat %1 
                                               (zipmap (if (seq (:super %2)) (:super %2) [nil]) (repeat [(:name %2)]))) 
-                                 {} (:concepts assorted))
+                           {} (:concepts assorted))
         concepts-with-disjoints (map (fn [c] (assoc c :disjoints (disj (set (apply concat (filter #(some #{(:name c)} %) (vals supers-childern_)))) (:name c)))) (:concepts assorted))]
     (intern 'ow.engine 'concepts concepts-with-disjoints)
     (intern 'ow.engine 'dt-properties (:dt-properties assorted))
