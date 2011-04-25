@@ -2,6 +2,8 @@
   (:use [ow.export])
   (:use [clojure.test]))
 
+[[:rdfs:domain (flatten-1 [:owl:unionOf {:rdf:parseType "Collection"} 
+														(map #(vec [:owl:Class {:rdf:about (str "#" %)}]) ['a 'b 'c])])]]
 ;; TODO
 
 (comment

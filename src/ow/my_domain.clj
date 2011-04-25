@@ -64,7 +64,7 @@
 (property company-name
          [(s-min-length 2)]
          [pname cname])
-
+	
 (concept company
          [(val> pname [(s-min-length 3)])
           (val> cname [#(= (first %) \A)])

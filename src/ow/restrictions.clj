@@ -13,8 +13,7 @@
 ;; misc --------------------------------
 (def not-nil?
   (with-meta
-    (fn [prop]
-      (if (= nil prop) false true))
+    (comp not nil?)
     {:restriction ::not-nil}))
 
 (defn has-value
