@@ -8,7 +8,7 @@
   [role]
   (cond 
     (symbol? role) role 
-    (seq role) (second role)))
+    (coll? role) (second role)))
 
 (defn many-role?
   [role]
