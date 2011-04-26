@@ -19,37 +19,36 @@
   [on-dt rests]
   (vec [:rdfs:Datatype
         [:owl:onDatatype {:rdf:resource (str "%26xsd;" on-dt)}]
-         [:owl:withRestrictions {:rdf:parseType "Collection"}
-          (loop [rs rests
-                 rez [:rdf:Description]]
-            (if-let [n (first rs)]
-              (recur (rest rs)
-                     (let [r (first (keys n))
-                           v (second (first n))
-                           to-add (cond (= :ow.restrictions/pattern r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (str v)]]
-                                        (= :ow.restrictions/min-length r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str v)]]
-                                        (= :ow.restrictions/max-length r) [[:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str v)]]
-                                        (= :ow.restrictions/length r) [[:xsd:length {:rdf:datatype "%26xsd;integer"} (str v)]]
-                                        (= :ow.restrictions/before r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
-                                        (= :ow.restrictions/after r) [[:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
-                                        (= :ow.restrictions/lt r) [[:xsd:minInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
-                                        (= :ow.restrictions/gt r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
-                                        (= :ow.restrictions/s-between r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str (first v))] 
-                                                                          [:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str (second v))]]
-                                        (= :ow.restrictions/d-between r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (first v))] 
-                                                                          [:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (second v))]]
-                                        (= :ow.restrictions/n-between r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (first v))))} (str (first v))] 
-                                                                          [:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (second v))))} (str (second v))]]
-                                        (= :ow.restrictions/has-value r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (if (= :ow.restrictions/dateTime (of-type v))
-                                                                                                                         (encoded-datetime-for-xsd v)
-                                                                                                                         (str v))]]
-                                        :else
-                                        [[:comment! (str "Not yet supported restriction: " (name r))]])]
-                     (apply conj rez to-add)))
-              rez))]]))
+        (loop [rs rests
+               rez [:owl:withRestrictions {:rdf:parseType "Collection"}]]
+          (if-let [n (first rs)]
+            (recur (rest rs)
+              (let [r (first (keys n))
+                    v (second (first n))
+                    to-add (cond (= :ow.restrictions/pattern r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (str v)]]
+                                 (= :ow.restrictions/min-length r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str v)]]
+                                 (= :ow.restrictions/max-length r) [[:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str v)]]
+                                 (= :ow.restrictions/length r) [[:xsd:length {:rdf:datatype "%26xsd;integer"} (str v)]]
+                                 (= :ow.restrictions/before r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
+                                 (= :ow.restrictions/after r) [[:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
+                                 (= :ow.restrictions/lt r) [[:xsd:minInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
+                                 (= :ow.restrictions/gt r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
+                                 (= :ow.restrictions/s-between r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str (first v))] 
+                                                                   [:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str (second v))]]
+                                 (= :ow.restrictions/d-between r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (first v))] 
+                                                                   [:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (second v))]]
+                                 (= :ow.restrictions/n-between r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (first v))))} (str (first v))] 
+                                                                   [:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (second v))))} (str (second v))]]
+                                 (= :ow.restrictions/has-value r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (if (= :ow.restrictions/dateTime (of-type v))
+                                                                                                                   (encoded-datetime-for-xsd v)
+                                                                                                                   (str v))]]
+                                 :else
+                                 [[:comment! (str "Not yet supported restriction: " (name r))]])]
+                (apply conj rez (map #(conj [:rdf:Description] %) to-add))))
+            rez))]))
 
 (defn get-dt-properties-owl []
-  (use 'ow.restrictions);; seems ugly... didn't eval 'use' from file.. 
+  (use 'ow.restrictions);; seems ugly... didn't eval 'use' from model file.. 
   (use 'org.uncomplicate.magicpotion.predicates);; TODO fix
   (map (fn [{prop-name :name restrictions :all-restrictions}]
          (let [on-set (set (filter identity (map #(:restriction-on (meta (eval %))) restrictions)))
@@ -105,9 +104,9 @@
                                                                                                     (= :ow.restrictions/not-nil (first (keys r))) ; restrictions fns with :not-nil type are not considered here 
                                                                                                     (= :ow.restrictions/type (first (keys r)))))) rest-maps)] ;restriction for dt is already considered with on-dt]
                                                                  (if (seq on-set) [:owl:allValuesFrom (datatype-owl on-dt rests)] [:comment! "Unsupported datatype restriciton"]))) 
-                                                       (cond (= :min (:cardinality-1 %)) [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} 1]
-                                                             (= :max (:cardinality-1 %)) [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} 1]
-                                                             (= :eq (:cardinality-1 %)) [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} 1])]]) roles-construct)]
+                                                       (cond (= :min (:cardinality-1 %)) [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} "1"]
+                                                             (= :max (:cardinality-1 %)) [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} "1"]
+                                                             (= :eq (:cardinality-1 %)) [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} "1"])]]) roles-construct)]
            (flatten-1 [:owl:Class [{:rdf:about (str "#" nm)}]
                        (if (seq disjoints-owl) disjoints-owl [[:comment! "no disjoints"]])
                        (if (seq supers-owl) supers-owl [[:comment! "no super"]])
