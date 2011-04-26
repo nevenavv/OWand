@@ -7,8 +7,7 @@
         [ow.engine :as e]
         [ow.IRI]
         [ow.util]
-        [ow.restrictions]
-        [clojure.contrib.pprint :only [pprint]]))
+        [ow.restrictions]))
 
 (def n "\n")
 (def t "\t")
@@ -93,7 +92,7 @@
   (map (fn [{nm :name roles :roles super-nms :super restrictions :restrictions disjoints :disjoints roles-construct :roles-construct}]
          (let [disjoints-owl (map #(vec [:owl:disjointWith {:rdf:resource (str "#" %)}]) disjoints)
                supers-owl (map #(vec [:rdfs:subClassOf {:rdf:resource (str "#" %)}]) super-nms)
-               roles-owl (map #(vec [:rdfs:subClassof [:owl:Restriction 
+               roles-owl (map #(vec [:rdfs:subClassOf [:owl:Restriction 
                                                        [:owl:onProperty	{:rdf:resource (str "#" (:property-name %))}]
                                                        (cond (and (seq (:ranges (meta (get obj-properties-ranges (:property-name %))))) (= :object (:property-type %))) 
                                                                [:owl:allValuesFrom {:rdf:resource (str "#" (first (:ranges (meta (get obj-properties-ranges (:property-name %))))))}]

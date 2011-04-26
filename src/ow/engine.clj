@@ -2,8 +2,7 @@
   (:use [clojure.contrib.java-utils :only [file]]
         [clojure.set :only [select union]]
         [ow.util :only [trim-ending-?]]
-        [ow.engine-util]
-        [clojure.contrib.pprint :only [pprint]])
+        [ow.engine-util])
   (:require [clojure.contrib.str-utils2 :only [replace] :as s])
   (:import [java.io File FileReader BufferedReader PushbackReader]))
 	
