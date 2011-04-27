@@ -34,9 +34,11 @@ Details
 
 ####Restriction functions
 **Case 1** Restrictions using `MP` `predicates` and `ow.restrictions`
+
 Besides `before?` and `after?` (as stated below), predicates from `MP` `predicates` are easily transformed to OWL counterparts (due to no obvious advantage and need for additional logic for *manual* processing of this predicates, now they are [hooked][hook] to appropriate restriction functions from `ow.restrictions`
 
 **Case 2** Restrictions as user defined predicates
+
 Highly unlikely to cover those as it could be **anything**. With that, when defining model user is encouraged to use already defined predicates/restriction functions from `MP`/`predicates` and `ow.restrictions`.
 
 ####Disjoint classes
@@ -116,6 +118,7 @@ If supplied, plugin will override default configuration pairs with ones on `:ow-
 ## Installation
 
 Build jar with [Leiningen][lein]
+
 *Magic Potion* must be available on classpath. 
 <br/>
 
