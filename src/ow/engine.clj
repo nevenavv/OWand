@@ -1,6 +1,6 @@
 (ns ow.engine
   (:use [clojure.contrib.java-utils :only [file]]
-        [clojure.set :only [select union]]
+        [clojure.set :only [select union intersection]]
         [ow.util :only [trim-ending-?]]
         [ow.engine-util])
   (:require [clojure.contrib.str-utils2 :only [replace] :as s])
@@ -41,11 +41,12 @@
                                      super (if-let [s (second pos)] s (:super kw-map))
                                      restrictions (set (if-let [re (second (rest pos))] re (:restrictions kw-map)))
                                      properties_ (map #(get-prop-name %) roles)
+                                     concept-rests-nn-props (intersection (set (map #(if-not (many-role? %) (get-prop-name %)) properties_)) (set (filter identity (map #(if (keyword? %) (symbol (name %))) restrictions))))
                                      props-domain (zipmap properties_ (repeat [thing-name]))
                                      roles-construct (filter identity  (map #(let [property-name (get-prop-name %)
                                                                                    property-type (if (some #{property-name} (:obj-property-names res)) :object :datatype)
                                                                                    role-restrictions (get-role-restrictions %)
-                                                                                   not-nil_ (or (is-not-nil-property? role-restrictions) (some #{property-name} (:not-nil-properties res)))
+                                                                                   not-nil_ (or (is-not-nil-property? role-restrictions) (some #{property-name} (concat concept-rests-nn-props (:not-nil-properties res))))
                                                                                    many-role_ (many-role? %)
                                                                                    cardinality-1 (cond (and many-role_ not-nil_) :min
                                                                                                        (not (or many-role_ not-nil_)) :max

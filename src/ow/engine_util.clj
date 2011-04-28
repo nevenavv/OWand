@@ -2,7 +2,7 @@
 
 (defn is-not-nil-property?
   [restrictions]
-  (some #{'not-nil? '(comp not nil?)} restrictions))
+  (some #(or (= 'not-nil? %) (= '(comp not nil?) %)) restrictions))
 	
 (defn get-prop-name
   [role]
