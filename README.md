@@ -11,7 +11,7 @@ Not yet processed:
 	
 * `set-restrictions` on `val*>` and `ref*>` roles
 * concept's restrictions
-* some restrictions from `ow.restrictions`, e.g. `has-value` and `in`
+* some restrictions from `ow.restrictions`, e.g. `has-value`, `in` and cardinality
 * user defined restrictions (!?)
 * instances
 
@@ -135,4 +135,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [prot]: http://protege.stanford.edu/
 [mp]: http://www.uncomplicate.org/magicpotion
 [owl]: http://www.w3.org/2007/OWL/wiki/OWL_Working_Group
-[hook]: https://github.com/nevenavv/OWand/blob/master/src/ow/restrictions.clj#L169
+[hook]: https://github.com/nevenavv/OWand/blob/master/src/ow/restrictions.clj#L198
