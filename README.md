@@ -133,7 +133,7 @@ Copyright (C) Nevena Vidojević 2011
 Distributed under the Eclipse Public License, the same as Clojure.
 
 
-<s>test</s>
+<strike>test</strike>
 
 
 [lein]: https://github.com/technomancy/leiningen
