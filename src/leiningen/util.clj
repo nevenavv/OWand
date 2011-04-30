@@ -1,11 +1,5 @@
-(ns leiningen.util)
-
-(defn assoc-new
-   "Add kv pair if m doesn't have k and v is not nil."
-   [m k v]
-   (if (and ((comp not contains?) m k) v)
-       (assoc m k v)
-       m))
+(ns leiningen.util
+  (:use [ow.util]))
 
 (defn get-config [project]
   (let [config (:ow-config project)

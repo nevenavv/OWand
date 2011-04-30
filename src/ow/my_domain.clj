@@ -77,5 +77,3 @@
 ;------
 
 ;(property colorina)
-
-(concept superman [cname])

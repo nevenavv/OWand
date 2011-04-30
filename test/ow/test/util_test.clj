@@ -16,15 +16,15 @@
   (is (= "folder" (trim-ending-str "folder" "/"))))
 
 ;; seq --------------------
-(deftest test-flatten-1
-  (is (= [1 2 3] (flatten-1 [1 [2] 3])))
-  (is (= [1 [2] 3] (flatten-1 [1 [[2]] 3])))
-  (is (= [1 2 [3] [4 5 [6]] 7] (flatten-1 [1 2 [[3] [4 5 [6]]] 7]))))
-
 (deftest test-assoc-new
   (is (= {:a 1 :b 2 :c 3} (assoc-new {:a 1 :b 2 :c 3} :a 5)))
   (is (= {:a 1 :b 2 :c 3} (assoc-new {:a 1 :b 2 :c 3} :d nil)))
   (is (= {:a 1 :b 2 :c 3 :d 4} (assoc-new {:a 1 :b 2 :c 3} :d 4))))
+
+(deftest test-flatten-1
+  (is (= [1 2 3] (flatten-1 [1 [2] 3])))
+  (is (= [1 [2] 3] (flatten-1 [1 [[2]] 3])))
+  (is (= [1 2 [3] [4 5 [6]] 7] (flatten-1 [1 2 [[3] [4 5 [6]]] 7]))))
 
 ;; ow ---------------------
 (deftest test-ont-name-for-pr

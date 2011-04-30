@@ -1,7 +1,7 @@
 (ns ow.test.export-test
   (:use [ow.export])
   (:use [clojure.test]))
-
+(comment
 [[:rdfs:domain (flatten-1 [:owl:unionOf {:rdf:parseType "Collection"} 
 														(map #(vec [:owl:Class {:rdf:about (str "#" %)}]) ['a 'b 'c])])]]
 ;; TODO
@@ -25,4 +25,5 @@
 (use d :reload :verbose)
 
 (def ow-config {:mp-domain-package-source 'ow.test.examples.my-domain :ontology-name "nescafe"})
+)
 )

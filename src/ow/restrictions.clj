@@ -166,6 +166,35 @@
     :restriction-with [b a]
     :restriction-on :dateTime}))
 
+;; role set-restrictions for cardinality ---
+
+(defn max-card
+  [x]
+  (with-meta
+    (fn [role-set]
+      (>= x (count role-set)))
+    {:restriction ::max-card
+     :restriction-with x
+     :restriction-on :cardinality}))
+
+(defn min-card
+  [x]
+  (with-meta
+    (fn [role-set]
+      (<= x (count role-set)))
+    {:restriction ::min-card
+     :restriction-with x
+     :restriction-on :cardinality}))
+
+(defn card
+  [x]
+  (with-meta
+    (fn [role-set]
+      (= x (count role-set)))
+    {:restriction ::card
+     :restriction-with x
+     :restriction-on :cardinality}))
+
 ;; prepare MP predicates - restriciton fns
 (defn switch-min-length
   [f low]

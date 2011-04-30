@@ -43,6 +43,14 @@
     (println "Created" file-name "in:" (.getAbsolutePath path))))
 
 ;; seq --------------------
+
+(defn assoc-new
+   "Add kv pair if m doesn't have k and v is not nil."
+   [m k v]
+   (if (and ((comp not contains?) m k) v)
+       (assoc m k v)
+       m))
+
 (defn flatten-1
   ;from clojuremvc
   "Flattens only the first level of a given sequence, e.g. [[1 2][3]] becomes

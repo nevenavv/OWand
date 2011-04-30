@@ -13,6 +13,25 @@
   (is (= false (not-nil? nil)))
   (is (= :ow.restrictions/not-nil (:restriction (meta not-nil?)))))
 
+(deftest test-card
+  (is (= true ((card 2) #{1 2})))
+  (is (= false ((card 2) #{1 2 3})))
+  (is (= :ow.restrictions/card (:restriction (meta (card 2))))))
+
+(deftest test-min-card
+  (is (= true ((min-card 2) #{1 2})))
+  (is (= true ((min-card 2) #{1 2 3})))
+  (is (= false ((min-card 2) #{1})))
+  (is (= false ((min-card 2) #{})))
+  (is (= :ow.restrictions/min-card (:restriction (meta (min-card 2))))))
+
+(deftest test-max-card
+  (is (= true ((max-card 2) #{1 2})))
+  (is (= true ((max-card 2) #{2})))
+  (is (= true ((max-card 2) #{})))
+  (is (= false ((max-card 2) #{1 2 3})))
+  (is (= :ow.restrictions/max-card (:restriction (meta (max-card 2))))))
+
 ;; TODO
 (deftest test-s-length-between
   (is (= true ((s-length-between 4 8) "toshiba")))

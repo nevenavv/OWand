@@ -1,5 +1,5 @@
 (ns ow.test.engine-test)
-
+(comment
 (def b 'ow.my-domain)
 
 
@@ -23,3 +23,4 @@
 
 (assort-things 'ow.my-domain)
 (time (assort-things 'ow.my-domain)) 
+)

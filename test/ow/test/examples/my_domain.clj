@@ -80,3 +80,21 @@
 
 (concept superman [cname])
 
+(concept superman 
+  [cname
+   (val*> pname [] [#(> 3 (count %))])])
+
+(property th
+  [is-string? (s-min-length 5)])
+
+(property th2
+  [(s-max-length 10)]
+  [th])
+
+(property pem [])
+
+(concept thing
+  [th2 
+   (val*> th [#(.startsWith % "M")] [#(> (count %) 3)])]
+  []
+  [::th])
