@@ -132,10 +132,6 @@ Copyright (C) Nevena Vidojević 2011
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
-
-<strike>test</strike>
-
-
 [lein]: https://github.com/technomancy/leiningen
 [owconfig]: https://github.com/nevenavv/OWand/blob/master/src/ow/core.clj#L4
 [rdfv]: http://www.w3.org/RDF/Validator
