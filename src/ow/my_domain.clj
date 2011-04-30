@@ -3,7 +3,6 @@
         [org.uncomplicate.magicpotion.predicates]
         [ow.restrictions]))
 
-; taken from magicpotion/examples/domain
 (property pname
           [is-string?])
 
@@ -28,7 +27,7 @@
 
 (property transcedental-property
           []
-          [last-name])
+          [pname last-name])
 
 (concept transcedental-being
          [transcedental-property]

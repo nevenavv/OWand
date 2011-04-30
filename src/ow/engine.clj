@@ -21,7 +21,7 @@
 	
 ; bounded in 'assort-things'
 (def concepts) ; set of maps- {:name concept-symbol :roles [roles-expr] :super [super-symbols] :restrictions [restrictions-expr] :props-domain props-domain :disjoints #{disjoint-with-concepts} :roles-contruct [roles-construct]}
-(def dt-properties) ; set of maps- {:name dt-property-symbol :all-restrictions [restrictions-expr]}
+(def dt-properties) ; set of maps- {:name dt-property-symbol :restrictions #{restrictions} :super [super]}
 (def obj-properties) ;set of maps- {:name obj-property-symbol :super [super-symbols] :ranges [obj-prop-range-symbol]}
 (def obj-properties-ranges)
 (def properties-domain) ; map of pais {property-symbol [domain-concepts]}
@@ -69,15 +69,14 @@
                                      range-concepts (filter identity (map #(if-let [predicate-name (trim-ending-? (str %))] 
                                                                              (if (contains? (:concept-names res) (symbol predicate-name))
                                                                                (symbol predicate-name))) 
-	                                                                         restrictions))]
+	                                                                         restrictions))
+                                     nn-properties (if (is-not-nil-property? restrictions) thing-name)]
                                  (if (or (seq range-concepts) (some (:obj-property-names res) super))
                                    (merge-with conj res {:obj-properties {:name thing-name :super super :ranges range-concepts}
                                                          :obj-property-names (with-meta thing-name {:ranges range-concepts})
-                                                         :not-nil-properties (if (is-not-nil-property? restrictions) thing-name)})
-                                   (let [all-restrictions (reduce (fn [r papa] (union r (:all-restrictions (first (select #(= papa (:name %)) (:dt-properties res)))))) 
-                                                                  (set restrictions) super)]
-                                     (merge-with conj res {:dt-properties {:name thing-name :all-restrictions all-restrictions}
-                                                           :not-nil-properties (if (is-not-nil-property? all-restrictions) thing-name)}))))
+                                                         :not-nil-properties nn-properties})
+                                   (merge-with conj res {:dt-properties {:name thing-name  :super super :restrictions (set restrictions)}
+                                                         :not-nil-properties nn-properties})))
                                :else res)))
                    {:concepts #{} 
                     :dt-properties #{}
@@ -88,7 +87,7 @@
                     :not-nil-properties #{}}
                    (gather-things mp-model))
         supers-childern_ (reduce #(merge-with concat %1 
-                                              (zipmap (if (seq (:super %2)) (:super %2) [nil]) (repeat [(:name %2)]))) 
+                                    (zipmap (if (seq (:super %2)) (:super %2) [nil]) (repeat [(:name %2)]))) 
                            {} (:concepts assorted))
         concepts-with-disjoints (map (fn [c] (assoc c :disjoints (disj (set (apply concat (filter #(some #{(:name c)} %) (vals supers-childern_)))) (:name c)))) (:concepts assorted))]
     (intern 'ow.engine 'concepts concepts-with-disjoints)

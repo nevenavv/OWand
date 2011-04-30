@@ -50,7 +50,7 @@
 (defn get-dt-properties-owl []
   (use 'ow.restrictions);; seems ugly... didn't eval 'use' from model file.. 
   (use 'org.uncomplicate.magicpotion.predicates);; TODO fix
-  (map (fn [{prop-name :name restrictions :all-restrictions}]
+  (map (fn [{prop-name :name restrictions :restrictions super-names :super}]
          (let [on-set (set (filter identity (map #(:restriction-on (meta (eval %))) restrictions)))
                _ (assert (<= (count on-set) 1)) ;dt prop restrictions must be for one dt
                on-dt (if-let [n (first on-set)] (name n))
@@ -60,14 +60,14 @@
                                        (= :ow.restrictions/type (first (keys %))))) rest-maps) ;restriction for dt is already considered with on-dt
                domain (prop-name e/properties-domain)
                owl-domains (cond (> (count domain) 1) [:rdfs:domain [:owl:Class (flatten-1 [:owl:unionOf [{:rdf:parseType "Collection"}] (map #(vec [:owl:Class {:rdf:about (str "#" %)}]) domain)])]]
-                                 (= (count domain) 1) [:rdfs:domain {:rdf:resource (str "#" (first domain))}])]
-           (if (seq rests)
-             [:owl:DatatypeProperty {:rdf:about (str "#" prop-name)}
-              (if domain owl-domains [[:comment! "No domain classes"]])
-              [:rdfs:range (datatype-owl on-dt rests)]]
-             [:owl:DatatypeProperty {:rdf:about (str "#" prop-name)}
-              (if on-dt [:rdfs:range {:rdf:resource (str "%26xsd;" on-dt)}] [[:comment! "No range"]])
-              (if domain owl-domains [[:comment! "No domain classes"]])])))
+                                 (= (count domain) 1) [:rdfs:domain {:rdf:resource (str "#" (first domain))}])
+               owl-sub-properties (map #(vec [:rdfs:subPropertyOf {:rdf:resource (str "#" %)}]) super-names)]
+           [:owl:DatatypeProperty {:rdf:about (str "#" prop-name)}
+             (if (seq super-names) owl-sub-properties [:comment! "No super properties"])
+             (if domain owl-domains [:comment! "No domain classes"])
+             (if (seq rests)
+               [:rdfs:range (datatype-owl on-dt rests)]
+               (if on-dt [:rdfs:range {:rdf:resource (str "%26xsd;" on-dt)}] [:comment! "No range"]))]))
     e/dt-properties))
 
 ;; obj-properties --------------------------
@@ -77,12 +77,12 @@
          (let [owl-ranges (map #(vec [:rdfs:range {:rdf:resource (str "#" %)}]) range-names)
                owl-sub-properties (map #(vec [:rdfs:subPropertyOf {:rdf:resource (str "#" %)}]) super-names)
                domain (prop-name e/properties-domain)
-               owl-domains (cond (> (count domain) 1) [[:rdfs:domain [:owl:Class (flatten-1 [:owl:unionOf [{:rdf:parseType "Collection"}] (map #(vec [:owl:Class {:rdf:about (str "#" %)}]) domain)])]]]
-                                 (= (count domain) 1) [[:rdfs:domain {:rdf:resource (str "#" (first domain))}]])]
-           (flatten-1 [:owl:ObjectProperty [{:rdf:about (str "#" prop-name)}]
-                       (if domain owl-domains [[:comment! "No domain classes"]]) 
-                       (if (seq range-names) owl-ranges [[:comment! "No range"]])
-                       (if (seq super-names) owl-sub-properties [[:comment! "No super properties"]])])))
+               owl-domains (cond (> (count domain) 1) [:rdfs:domain [:owl:Class (flatten-1 [:owl:unionOf [{:rdf:parseType "Collection"}] (map #(vec [:owl:Class {:rdf:about (str "#" %)}]) domain)])]]
+                                 (= (count domain) 1) [:rdfs:domain {:rdf:resource (str "#" (first domain))}])]
+           [:owl:ObjectProperty {:rdf:about (str "#" prop-name)}
+            (if (seq super-names) owl-sub-properties [:comment! "No super properties"])           
+            (if domain owl-domains [:comment! "No domain classes"]) 
+            (if (seq range-names) owl-ranges [:comment! "No range"])]))
        e/obj-properties))
 
 ;; concepts --------------------------------
