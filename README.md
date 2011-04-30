@@ -29,10 +29,10 @@ Details
 
 ###Transformation rationale/rules
 
-<s>
+<strike>
 ####Datatype property inheritance
 `MP` datatype property interitance != `OWL` `DatatypeProperty` inhteritace, so there is no `subPropertyOf` constructs on `DatatypeProperty`, and all *ancestor* restrictions from `MP` property is used as it's `OWL` property counterpart restriction (as that is appropriate `OWL` representation of this `MP` semantics).
-</s>[wrong conclusion. must fix this]
+</strike>[wrong conclusion. must fix this]
 
 ####Restriction functions
 **Case 1** Restrictions using `MP` `predicates` and `ow.restrictions`
