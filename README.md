@@ -27,12 +27,12 @@ Details
 
 `MP` -> `OWL` transformation (export) is not  `1-to-1` transformation due to `OWL`'s limited expresiveness and `MP`'s rich expresiveness. Details are disscussed further below.
 
-###Transformation rationale/rules
+<b><strike>Transformation rationale/rules</strike></b>
 
-<strike>
+<b>[wrong conclusion. must fix this]</b>
 ####Datatype property inheritance
 `MP` datatype property interitance != `OWL` `DatatypeProperty` inhteritace, so there is no `subPropertyOf` constructs on `DatatypeProperty`, and all *ancestor* restrictions from `MP` property is used as it's `OWL` property counterpart restriction (as that is appropriate `OWL` representation of this `MP` semantics).
-</strike>[wrong conclusion. must fix this]
+
 
 ####Restriction functions
 **Case 1** Restrictions using `MP` `predicates` and `ow.restrictions`
