@@ -68,91 +68,91 @@
 (defn s-min-length
   [low]
   (with-meta
-	  (fn [#^String s]
-	    (<= low (.length s)))
-   {:restriction ::min-length
-    :restriction-with low
-    :restriction-on :string}))
+    (fn [#^String s]
+      (<= low (.length s)))
+    {:restriction ::min-length
+     :restriction-with low
+     :restriction-on :string}))
 
 (defn s-max-length
   [high]
   (with-meta
-	  (fn [#^String s]
-	    (>= high (.length s)))
-   {:restriction ::max-length
-    :restriction-with high
-    :restriction-on :string}))
+    (fn [#^String s]
+      (>= high (.length s)))
+    {:restriction ::max-length
+     :restriction-with high
+     :restriction-on :string}))
 
 (defn s-length
   [v]
   (with-meta
-	  (fn [#^String s]
-	    (= v (.length s)))
-   {:restriction ::length
-    :restriction-with v
-    :restriction-on :string}))
+    (fn [#^String s]
+      (= v (.length s)))
+    {:restriction ::length
+     :restriction-with v
+     :restriction-on :string}))
 
 (defn s-length-between
   [l h]
   (with-meta
-	  (fn [#^String s]
+    (fn [#^String s]
 	     (and  (>= (.length s) l) (<= (.length s) h)))
-   {:restriction ::s-between
-    :restriction-with [l h]
-    :restriction-on :string}))
+    {:restriction ::s-between
+     :restriction-with [l h]
+     :restriction-on :string}))
 
 (defn s-pattern
   [re]
   (with-meta
-	  (fn [#^String s]
-	    (= s (re-find re s)))
-   {:restriction ::pattern
-    :restriction-with re ;java pattern != xsd pattern syntax!
-    :restriction-on :string}))
+    (fn [#^String s]
+      (= s (re-find re s)))
+    {:restriction ::pattern
+     :restriction-with re ;java pattern != xsd pattern syntax!
+     :restriction-on :string}))
 
 ;; number restrictions -----------------
 (defn lt
   [n]
   (with-meta
-	  (fn [x]
-	    (< x n))
-   {:restriction ::lt
-    :restriction-with n
-    :restriction-on (of-type n)}))
+    (fn [x]
+      (< x n))
+    {:restriction ::lt
+     :restriction-with n
+     :restriction-on (of-type n)}))
 
 (defn gt
   [n]
   (with-meta
-	  (fn [x]
-	    (> x n))
-   {:restriction ::gt
-    :restriction-with n
-    :restriction-on (of-type n)}))
+    (fn [x]
+      (> x n))
+    {:restriction ::gt
+     :restriction-with n
+     :restriction-on (of-type n)}))
 
 (defn n-between
   [l g]
   (with-meta
-	  (fn [x]
-	    (and (> x l) (< x g)))
-   {:restriction ::n-between
-    :restriction-with [l g]
-    :restriction-on (of-type l)}))
+    (fn [x]
+      (and (> x l) (< x g)))
+    {:restriction ::n-between
+     :restriction-with [l g]
+     :restriction-on (of-type l)}))
 
 ;; dateTime restrictions --------------------
 (defn before
   [t]
   (with-meta
-	  (fn [#^java.util.Date d]
-	    (. d before t))
-   {:restriction ::before
-    :restriction-with t
-    :restriction-on :dateTime}))
+    (fn [#^java.util.Date d]
+      (. d before t))
+    {:restriction ::before
+     :restriction-with t
+     :restriction-on :dateTime}))
 
 (defn after
   [t]
   (with-meta
-	  (fn [#^java.util.Date d]
-	    (. d after t))
+    (fn [#^java.util.Date d]
+      (. d after t))
    {:restriction ::after
     :restriction-with t
     :restriction-on :dateTime}))
@@ -160,11 +160,11 @@
 (defn d-between
   [b a]
   (with-meta
-	  (fn [#^java.util.Date d]
-	    (and (. d before b) (. d after a)))
-   {:restriction ::d-between
-    :restriction-with [b a]
-    :restriction-on :dateTime}))
+    (fn [#^java.util.Date d]
+      (and (. d before b) (. d after a)))
+    {:restriction ::d-between
+     :restriction-with [b a]
+     :restriction-on :dateTime}))
 
 ;; role set-restrictions for cardinality ---
 
@@ -215,7 +215,7 @@
 (defn switch-string?
   [f x]
   (is-string? x))
-  
+
 (add-hook #'min-length switch-min-length)
 (add-hook #'max-length switch-max-length)
 (add-hook #'length-between switch-length-between)
