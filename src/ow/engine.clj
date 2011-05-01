@@ -83,10 +83,12 @@
                     :obj-property-names #{}
                     :not-nil-properties #{}}
                    (gather-things mp-model))
-        supers-childern_ (reduce #(merge-with concat %1 
+        supers-childern- (reduce #(merge-with concat %1 
                                     (zipmap (if (seq (:super %2)) (:super %2) [nil]) (repeat [(:name %2)]))) 
                            {} (:concepts assorted))
-        concepts-with-disjoints (map (fn [c] (assoc c :disjoints (disj (set (apply concat (filter #(some #{(:name c)} %) (vals supers-childern_)))) (:name c)))) (:concepts assorted))]
+        concepts-with-disjoints (map (fn [c] (assoc c :disjoints 
+                                               (disj (set (apply concat (filter #(some #{(:name c)} %) (vals supers-childern-)))) (:name c)))) 
+                                  (:concepts assorted))]
     (intern 'ow.engine 'concepts concepts-with-disjoints)
     (intern 'ow.engine 'dt-properties (:dt-properties assorted))
     (intern 'ow.engine 'obj-properties (:obj-properties assorted))
