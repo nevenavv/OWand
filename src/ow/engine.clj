@@ -23,7 +23,7 @@
 (def concepts) ; set of maps- {:name concept-symbol :roles [roles-expr] :super [super-symbols] :restrictions [restrictions-expr] :props-domain props-domain :disjoints #{disjoint-with-concepts} :roles-contruct [roles-construct]}
 (def dt-properties) ; set of maps- {:name dt-property-symbol :restrictions #{restrictions} :super [super]}
 (def obj-properties) ;set of maps- {:name obj-property-symbol :super [super-symbols] :ranges [obj-prop-range-symbol]}
-(def obj-properties-ranges)
+(def obj-properties-ranges) ;set of property symbols with metadata {:ranges range-concepts}
 (def properties-domain) ; map of pais {property-symbol [domain-concepts]}
 	
 (defn assort-things
