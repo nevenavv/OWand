@@ -17,3 +17,16 @@
 (defn get-role-restrictions
   [role]
   (if (coll? role) (second (rest role))))
+
+(defn get-role-set-restrictions
+  [role]
+  (if (coll? role) (second (rest (rest role)))))
+
+(defn get-cardinality-map
+  [restrictions]
+  (reduce #(let [{r :restriction v :restriction-with on :restriction-on} (meta (eval %2))]
+             (if (= :cardinality on)
+               (assoc %1 r v)
+               %1))
+    {} restrictions))
+  

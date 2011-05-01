@@ -48,8 +48,6 @@
             rez))]))
 
 (defn get-dt-properties-owl []
-  (use 'ow.restrictions);; seems ugly... didn't eval 'use' from model file.. 
-  (use 'org.uncomplicate.magicpotion.predicates);; TODO fix
   (map (fn [{prop-name :name restrictions :restrictions super-names :super}]
          (let [on-set (set (filter identity (map #(:restriction-on (meta (eval %))) restrictions)))
                _ (assert (<= (count on-set) 1)) ;dt prop restrictions must be for one dt
@@ -104,9 +102,9 @@
                                                                                                     (= :ow.restrictions/not-nil (first (keys r))) ; restrictions fns with :not-nil type are not considered here 
                                                                                                     (= :ow.restrictions/type (first (keys r)))))) rest-maps)] ;restriction for dt is already considered with on-dt]
                                                                  (if (seq on-set) [:owl:allValuesFrom (datatype-owl on-dt rests)] [:comment! "Unsupported datatype restriciton"]))) 
-                                                       (cond (= :min (:cardinality-1 %)) [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} "1"]
-                                                             (= :max (:cardinality-1 %)) [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} "1"]
-                                                             (= :eq (:cardinality-1 %)) [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} "1"])]]) roles-construct)]
+                                                       (if-let [c (:min (:cardinality %))] [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
+                                                       (if-let [c (:max (:cardinality %))] [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
+                                                       (if-let [c (:eq (:cardinality %))] [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])]]) roles-construct)]
            (flatten-1 [:owl:Class [{:rdf:about (str "#" nm)}]
                        (if (seq disjoints-owl) disjoints-owl [[:comment! "no disjoints"]])
                        (if (seq supers-owl) supers-owl [[:comment! "no super"]])
@@ -124,6 +122,8 @@
       (doall (map #(ns-unmap *ns* (key %)) (ns-interns mp-domain)))
       (remove-ns mp-domain)
       (use mp-domain :reload)
+      (use 'ow.restrictions);; seems ugly... didn't eval 'use' from model file.. 
+      (use 'org.uncomplicate.magicpotion.predicates);; TODO fix
       (e/assort-things mp-domain)) 
     (create-file (:to-owl-location ow-config) (str ontology-name ".owl")
                  (binding [*prxml-indent* 2]

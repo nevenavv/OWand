@@ -173,7 +173,7 @@
   (with-meta
     (fn [role-set]
       (>= x (count role-set)))
-    {:restriction ::max-card
+    {:restriction :max
      :restriction-with x
      :restriction-on :cardinality}))
 
@@ -182,7 +182,7 @@
   (with-meta
     (fn [role-set]
       (<= x (count role-set)))
-    {:restriction ::min-card
+    {:restriction :min
      :restriction-with x
      :restriction-on :cardinality}))
 
@@ -191,7 +191,7 @@
   (with-meta
     (fn [role-set]
       (= x (count role-set)))
-    {:restriction ::card
+    {:restriction :eq
      :restriction-with x
      :restriction-on :cardinality}))
 

@@ -3,3 +3,8 @@
   (:use [clojure.test]))
 
 ;; try examples/start
+(comment
+  (ow-export-goal)
+  
+  (.printStackTrace *e)
+)

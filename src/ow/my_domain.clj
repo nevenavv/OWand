@@ -47,7 +47,7 @@
 
 (concept social-person
          [(ref> knows)
-          (ref*> loves)]
+          (ref*> loves [] [(max-card 3)])]
          [person])
 
 (concept social-person-by-val
