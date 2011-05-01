@@ -7,7 +7,7 @@
         [ow.engine :as e]
         [ow.IRI]
         [ow.util]
-        [ow.restrictions]))
+        [ow.restrictions :as r]))
 
 (def n "\n")
 (def t "\t")
@@ -25,21 +25,21 @@
             (recur (rest rs)
               (let [r (first (keys n))
                     v (second (first n))
-                    to-add (cond (= :ow.restrictions/pattern r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (str v)]]
-                                 (= :ow.restrictions/min-length r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str v)]]
-                                 (= :ow.restrictions/max-length r) [[:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str v)]]
-                                 (= :ow.restrictions/length r) [[:xsd:length {:rdf:datatype "%26xsd;integer"} (str v)]]
-                                 (= :ow.restrictions/before r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
-                                 (= :ow.restrictions/after r) [[:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
-                                 (= :ow.restrictions/lt r) [[:xsd:minInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
-                                 (= :ow.restrictions/gt r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
-                                 (= :ow.restrictions/s-between r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str (first v))] 
+                    to-add (cond (= ::r/pattern r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (str v)]]
+                                 (= ::r/min-length r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str v)]]
+                                 (= ::r/max-length r) [[:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str v)]]
+                                 (= ::r/length r) [[:xsd:length {:rdf:datatype "%26xsd;integer"} (str v)]]
+                                 (= ::r/before r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
+                                 (= ::r/after r) [[:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd v)]]
+                                 (= ::r/lt r) [[:xsd:minInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
+                                 (= ::r/gt r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type v)))} (str v)]]
+                                 (= ::r/s-between r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str (first v))] 
                                                                    [:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str (second v))]]
-                                 (= :ow.restrictions/d-between r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (first v))] 
+                                 (= ::r/d-between r) [[:xsd:minInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (first v))] 
                                                                    [:xsd:maxInclusive {:rdf:datatype "%26xsd;dateTime"} (encoded-datetime-for-xsd (second v))]]
-                                 (= :ow.restrictions/n-between r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (first v))))} (str (first v))] 
+                                 (= ::r/n-between r) [[:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (first v))))} (str (first v))] 
                                                                    [:xsd:maxInclusive {:rdf:datatype (str "%26xsd;" (name (of-type (second v))))} (str (second v))]]
-                                 (= :ow.restrictions/has-value r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (if (= :ow.restrictions/dateTime (of-type v))
+                                 (= ::r/has-value r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (if (= :ow.restrictions/dateTime (of-type v))
                                                                                                                    (encoded-datetime-for-xsd v)
                                                                                                                    (str v))]]
                                  :else
