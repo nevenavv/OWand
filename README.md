@@ -9,11 +9,11 @@ Status
 
 Not yet processed:
 	
-* `set-restrictions` on `val*>` and `ref*>` roles
-* concept's restrictions
-* some restrictions from `ow.restrictions`, e.g. `has-value`, `in` and cardinality
 * user defined restrictions (!?)
 * instances
+* `set-restrictions` on `val*>` and `ref*>` roles [except cardinality]
+* concept's restrictions [except property key for not-nil restriction of `val>` and `ref>` roles]
+* some restrictions from `ow.restrictions`, e.g. `has-value`, `in`
 
 Generated `OWL` file is [RDF Valid][rdfv] and [Protégé][prot] sucessfully parsed.
 
