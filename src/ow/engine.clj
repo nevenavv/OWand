@@ -40,10 +40,10 @@
                                      roles (if-let [r (first pos)] r (:roles kw-map))
                                      super (if-let [s (second pos)] s (:super kw-map))
                                      restrictions (set (if-let [re (second (rest pos))] re (:restrictions kw-map)))
-                                     properties- (map #(get-prop-name %) roles)
-                                     concept-rests-nn-props (intersection (set (map #(if-not (many-role? %) (get-prop-name %)) properties-)) 
+                                     properties (map #(get-prop-name %) roles)
+                                     concept-rests-nn-props (intersection (set (map #(if-not (many-role? %) (get-prop-name %)) properties)) 
                                                                           (set (keep #(if (keyword? %) (symbol (name %))) restrictions)))
-                                     props-domain (zipmap properties- (repeat [thing-name]))
+                                     props-domain (zipmap properties (repeat [thing-name]))
                                      roles-construct (keep #(let [property-name (get-prop-name %)
                                                                   property-type (if (some #{property-name} (:obj-property-names res)) :object :datatype)
                                                                   role-restrictions (get-role-restrictions %)
@@ -83,11 +83,11 @@
                     :obj-property-names #{}
                     :not-nil-properties #{}}
                    (gather-things mp-model))
-        supers-childern- (reduce #(merge-with concat %1 
-                                    (zipmap (if (seq (:super %2)) (:super %2) [nil]) (repeat [(:name %2)]))) 
-                           {} (:concepts assorted))
+        supers-childern (reduce #(merge-with concat %1 
+                                   (zipmap (if (seq (:super %2)) (:super %2) [nil]) (repeat [(:name %2)]))) 
+                          {} (:concepts assorted))
         concepts-with-disjoints (map (fn [c] (assoc c :disjoints 
-                                               (disj (set (apply concat (filter #(some #{(:name c)} %) (vals supers-childern-)))) (:name c)))) 
+                                               (disj (set (apply concat (filter #(some #{(:name c)} %) (vals supers-childern)))) (:name c)))) 
                                   (:concepts assorted))]
     (intern 'ow.engine 'concepts concepts-with-disjoints)
     (intern 'ow.engine 'dt-properties (:dt-properties assorted))
