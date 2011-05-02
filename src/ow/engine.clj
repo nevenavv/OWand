@@ -7,11 +7,11 @@
   (:import [java.io File FileReader BufferedReader PushbackReader]))
 	
 (defn- gather-things 
-  "Returs list of statements read from clj file of given ns." ;root dir is 'src/', so for ns one.two.three
-  [domain-ns]                                                 ;it's looking for 'src/one/two/three.clj'... [not great]
-  (let [f (file (str "src/" (-> (name domain-ns)
-                              (s/replace "." "/")
-                              (s/replace "-" "_")) ".clj"))]
+  "Returs list of statements read from clj file of given ns." 
+  [domain-ns]                                                 
+  (let [f (file (.getFile (ClassLoader/getSystemResource (str (-> (name domain-ns)
+                                                                (s/replace "." "/")
+                                                                (s/replace "-" "_")) ".clj"))))]
     (with-open [rdr (PushbackReader. (BufferedReader. (FileReader. f)))]
       (loop [res []
              a (read rdr false :eof)]
