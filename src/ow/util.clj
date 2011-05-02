@@ -11,7 +11,7 @@
 (defn datetime-for-xsd
   "Formatter for xsd:dateTime datatype (format: [-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]; ISO 8601)"
   [^java.util.Date d]
-  (str (s/take (. (java.text.SimpleDateFormat. "yyyy-MM-dd'T'HH-mm-ssZ") format d) 22) ":00"))
+  (str (s/take (. (java.text.SimpleDateFormat. "yyyy-MM-dd'T'HH:mm:ssZ") format d) 22) ":00"))
 
 ;; string -----------------
 (defn trim-leading-str
