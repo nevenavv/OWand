@@ -55,9 +55,9 @@
     (alias alias-sym (ns-name other-ns)))
   (doseq [[sym ref] (ns-refers ns-sym)]
     (ns-unmap *ns* sym)
-    (. *ns* (refer sym ref))
+    (. *ns* (refer sym ref)))
   (doseq [[sym ref] (ns-imports ns-sym)]
-    (. *ns* (importClass ref)))))
+    (. *ns* (importClass ref))))
 
 ;; seq --------------------
 
