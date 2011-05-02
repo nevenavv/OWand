@@ -42,6 +42,23 @@
     (ds/spit f source)
     (println "Created" file-name "in:" (.getAbsolutePath path))))
 
+;; ns ---------------------
+
+(defn like
+  ;; from clj-nstools
+  "Take over all refers, aliases, and imports from the namespace named by
+   ns-sym into the current namespace. Use :like in the ns+ macro in preference
+   to calling this directly."
+  [ns-sym]
+  (require ns-sym)
+  (doseq [[alias-sym other-ns] (ns-aliases ns-sym)]
+    (alias alias-sym (ns-name other-ns)))
+  (doseq [[sym ref] (ns-refers ns-sym)]
+    (ns-unmap *ns* sym)
+    (. *ns* (refer sym ref))
+  (doseq [[sym ref] (ns-imports ns-sym)]
+    (. *ns* (importClass ref)))))
+
 ;; seq --------------------
 
 (defn assoc-new

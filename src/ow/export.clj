@@ -1,9 +1,6 @@
 (ns ow.export
   (:use [clojure.contrib.prxml :only [prxml *prxml-indent*]]
         [clojure.contrib.str-utils2 :only [capitalize] :as s]
-        [org.uncomplicate.magicpotion.core]
-        [org.uncomplicate.magicpotion.m3]
-        [org.uncomplicate.magicpotion]
         [ow.engine :as e]
         [ow.IRI]
         [ow.util]
@@ -23,8 +20,8 @@
                rez [:owl:withRestrictions {:rdf:parseType "Collection"}]]
           (if-let [n (first rs)]
             (recur (rest rs)
-                   (let [r (first (keys n))
-                         v (second (first n))
+                   (let [r (:restriction n)
+                         v (:restriction-with n)
                          to-add (cond (= ::r/pattern r) [[:xsd:pattern {:rdf:datatype "%26xsd;string"} (str v)]]
                                       (= ::r/min-length r) [[:xsd:minLength {:rdf:datatype "%26xsd;integer"} (str v)]]
                                       (= ::r/max-length r) [[:xsd:maxLength {:rdf:datatype "%26xsd;integer"} (str v)]]
@@ -49,13 +46,11 @@
 
 (defn get-dt-properties-owl []
   (map (fn [{prop-name :name restrictions :restrictions super-names :super}]
-         (let [on-set (set (filter identity (map #(:restriction-on (meta (eval %))) restrictions)))
+         (let [on-set (set (keep #(:restriction-on (meta (eval %))) restrictions))
                _ (assert (<= (count on-set) 1)) ;dt prop restrictions must be for one dt
                on-dt (if-let [n (first on-set)] (name n))
-               rest-maps (map #(apply hash-map ((juxt :restriction :restriction-with) (meta (eval %)))) restrictions)
-               rests (filter #(not (or (nil? (first (keys %))) ;restrictions fns with no meta are not considered (supported) here
-                                       (= :ow.restrictions/not-nil (first (keys %))) ; restrictions fns with :not-nil type are not considered here 
-                                       (= :ow.restrictions/type (first (keys %))))) rest-maps) ;restriction for dt is already considered with on-dt
+               rest-maps (map #(select-keys (meta (eval %)) [:restriction :restriction-with]) restrictions)
+               rests (filter #(not (some #{(:restriction %)} [::r/not-nil ::r/type nil])) rest-maps)
                domain (prop-name e/properties-domain)
                owl-domains (cond (> (count domain) 1) [:rdfs:domain [:owl:Class (flatten-1 [:owl:unionOf [{:rdf:parseType "Collection"}] (map #(vec [:owl:Class {:rdf:about (str "#" %)}]) domain)])]]
                                  (= (count domain) 1) [:rdfs:domain {:rdf:resource (str "#" (first domain))}])
@@ -95,17 +90,16 @@
                                       (cond (and (seq (:ranges (meta (get obj-properties-ranges (:property-name %))))) (= :object (:property-type %))) 
                                               [:owl:allValuesFrom {:rdf:resource (str "#" (first (:ranges (meta (get obj-properties-ranges (:property-name %))))))}]
                                             (and (= :datatype (:property-type %)) (seq (:restrictions %))) 
-                                              (let [on-set (set (filter identity (map (fn [r] (:restriction-on (meta (eval r)))) (:restrictions %))))
+                                              (let [on-set (set (keep (fn [r] (:restriction-on (meta (eval r)))) (:restrictions %)))
                                                     _ (assert (<= (count on-set) 1)) ;dt prop restrictions must be for one dt
                                                     on-dt (if-let [n (first on-set)] (name n))
-                                                    rest-maps (map (fn [r] (apply hash-map ((juxt :restriction :restriction-with) (meta (eval r))))) (:restrictions %))
-                                                    rests (filter (fn [r] (not (or (nil? (first (keys r))) ;restrictions fns with no meta are not considered (supported) here
-                                                                                   (= :ow.restrictions/not-nil (first (keys r))) ; restrictions fns with :not-nil type are not considered here 
-                                                                                   (= :ow.restrictions/type (first (keys r)))))) rest-maps)] ;restriction for dt is already considered with on-dt]
+                                                    rest-maps (map (fn [r] (select-keys (meta (eval r)) [:restriction :restriction-with])) (:restrictions %))
+                                                    rests (filter (fn [rm] (not (some #{(:restriction rm)} [::r/not-nil ::r/type nil]))) rest-maps)]
                                                 (if (seq on-set) [:owl:allValuesFrom (datatype-owl on-dt rests)] [:comment! "Unsupported datatype restriciton"]))) 
                                       (if-let [c (:min (:cardinality %))] [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
                                       (if-let [c (:max (:cardinality %))] [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
-                                      (if-let [c (:eq (:cardinality %))] [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])]]) roles-construct)]
+                                      (if-let [c (:eq (:cardinality %))] [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])]]) 
+                                 roles-construct)]
            (flatten-1 [:owl:Class [{:rdf:about (str "#" nm)}]
                        (if (seq disjoints-owl) disjoints-owl [[:comment! "no disjoints"]])
                        (if (seq supers-owl) supers-owl [[:comment! "no super"]])
@@ -118,14 +112,8 @@
   [ow-config]
   (let [mp-domain (:mp-domain-ns-source ow-config)
         ontology-name (:ontology-name ow-config)]
-    (do
-      (create-ns mp-domain)
-      (doall (map #(ns-unmap *ns* (key %)) (ns-interns mp-domain)))
-      (remove-ns mp-domain)
-      (use mp-domain :reload)
-      (use 'ow.restrictions);; seems ugly... didn't eval 'use' from model file.. 
-      (use 'org.uncomplicate.magicpotion.predicates);; TODO fix
-      (e/assort-things mp-domain)) 
+    (like mp-domain)
+    (e/assort-things mp-domain)
     (create-file (:to-owl-location ow-config) (str ontology-name ".owl")
                  (binding [*prxml-indent* 2]
                    (decode 

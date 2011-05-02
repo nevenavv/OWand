@@ -42,20 +42,20 @@
                                      restrictions (set (if-let [re (second (rest pos))] re (:restrictions kw-map)))
                                      properties- (map #(get-prop-name %) roles)
                                      concept-rests-nn-props (intersection (set (map #(if-not (many-role? %) (get-prop-name %)) properties-)) 
-                                                                          (set (filter identity (map #(if (keyword? %) (symbol (name %))) restrictions))))
+                                                                          (set (keep #(if (keyword? %) (symbol (name %))) restrictions)))
                                      props-domain (zipmap properties- (repeat [thing-name]))
-                                     roles-construct (filter identity (map #(let [property-name (get-prop-name %)
-                                                                                  property-type (if (some #{property-name} (:obj-property-names res)) :object :datatype)
-                                                                                  role-restrictions (get-role-restrictions %)
-                                                                                  not-nil- (or (is-not-nil-property? role-restrictions) 
-                                                                                               (some #{property-name} (concat concept-rests-nn-props (:not-nil-properties res))))
-                                                                                  role-set-restrictions (get-role-set-restrictions %)
-                                                                                  cardinality (if (many-role? %)
-                                                                                                (get-cardinality-map role-set-restrictions)
-                                                                                                (hash-map (if not-nil- :eq :max) 1))]
-                                                                              (if-not (every? empty? [cardinality role-restrictions])
-                                                                                {:property-name property-name :property-type property-type :restrictions role-restrictions :cardinality cardinality}))
-                                                                        roles))]
+                                     roles-construct (keep #(let [property-name (get-prop-name %)
+                                                                  property-type (if (some #{property-name} (:obj-property-names res)) :object :datatype)
+                                                                  role-restrictions (get-role-restrictions %)
+                                                                  not-nil- (or (is-not-nil-property? role-restrictions) 
+                                                                             (some #{property-name} (concat concept-rests-nn-props (:not-nil-properties res))))
+                                                                  role-set-restrictions (get-role-set-restrictions %)
+                                                                  cardinality (if (many-role? %)
+                                                                                (get-cardinality-map role-set-restrictions)
+                                                                                (hash-map (if not-nil- :eq :max) 1))]
+                                                              (if-not (every? empty? [cardinality role-restrictions])
+                                                                {:property-name property-name :property-type property-type :restrictions role-restrictions :cardinality cardinality}))
+                                                       roles)]
                                  (merge-with conj res {:concepts {:name thing-name :roles roles :super super :restrictions restrictions :props-domain props-domain :roles-construct roles-construct}
                                                        :concept-names thing-name})) 
                                (= 'property thing) 
@@ -63,10 +63,10 @@
                                      kw-map (apply hash-map (drop-while (comp not keyword?) params))
                                      restrictions (if-let [r (first pos)] r (:restrictions kw-map))
                                      super (if-let [s (second pos)] s (:super kw-map))
-                                     range-concepts (filter identity (map #(if-let [predicate-name (trim-ending-? (str %))] 
-                                                                             (if (contains? (:concept-names res) (symbol predicate-name))
-                                                                               (symbol predicate-name))) 
-	                                                                         restrictions))
+                                     range-concepts (keep #(if-let [predicate-name (trim-ending-? (str %))] 
+                                                             (if (contains? (:concept-names res) (symbol predicate-name))
+                                                               (symbol predicate-name))) 
+                                                      restrictions)
                                      nn-properties (if (is-not-nil-property? restrictions) thing-name)]
                                  (if (or (seq range-concepts) (some (:obj-property-names res) super))
                                    (merge-with conj res {:obj-properties {:name thing-name :super super :ranges range-concepts}

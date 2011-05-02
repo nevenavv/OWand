@@ -8,3 +8,20 @@
   
   (.printStackTrace *e)
 )
+
+(comment 
+ 
+  (use 'clojure.contrib.pprint)
+  
+  
+  
+  (pprint (loaded-libs))
+  
+  
+  (pprint (all-ns))
+  
+  (pprint (ns-refers (find-ns 'ow.my-domain)))
+  
+  (pprint (load-string (ns ow.my-domain (:use [org.uncomplicate.magicpotion] [org.uncomplicate.magicpotion.predicates] [ow.restrictions])))) 
+ 
+)
