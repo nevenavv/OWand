@@ -62,11 +62,11 @@
 ;; seq --------------------
 
 (defn assoc-new
-   "Add kv pair if m doesn't have k and v is not nil."
-   [m k v]
-   (if (and ((comp not contains?) m k) v)
-       (assoc m k v)
-       m))
+  "Add kv pair if m doesn't have k and v is not nil."
+  [m k v]
+  (if (and ((comp not contains?) m k) v)
+    (assoc m k v)
+    m))
 
 (defn flatten-1
   ;from clojuremvc
