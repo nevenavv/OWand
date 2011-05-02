@@ -89,22 +89,23 @@
   (map (fn [{nm :name roles :roles super-nms :super restrictions :restrictions disjoints :disjoints roles-construct :roles-construct}]
          (let [disjoints-owl (map #(vec [:owl:disjointWith {:rdf:resource (str "#" %)}]) disjoints)
                supers-owl (map #(vec [:rdfs:subClassOf {:rdf:resource (str "#" %)}]) super-nms)
-               roles-owl (map #(vec [:rdfs:subClassOf [:owl:Restriction 
-                                                       [:owl:onProperty	{:rdf:resource (str "#" (:property-name %))}]
-                                                       (cond (and (seq (:ranges (meta (get obj-properties-ranges (:property-name %))))) (= :object (:property-type %))) 
-                                                               [:owl:allValuesFrom {:rdf:resource (str "#" (first (:ranges (meta (get obj-properties-ranges (:property-name %))))))}]
-                                                             (and (= :datatype (:property-type %)) (seq (:restrictions %))) 
-                                                               (let [on-set (set (filter identity (map (fn [r] (:restriction-on (meta (eval r)))) (:restrictions %))))
-                                                                     _ (assert (<= (count on-set) 1)) ;dt prop restrictions must be for one dt
-                                                                     on-dt (if-let [n (first on-set)] (name n))
-                                                                     rest-maps (map (fn [r] (apply hash-map ((juxt :restriction :restriction-with) (meta (eval r))))) (:restrictions %))
-                                                                     rests (filter (fn [r] (not (or (nil? (first (keys r))) ;restrictions fns with no meta are not considered (supported) here
-                                                                                                    (= :ow.restrictions/not-nil (first (keys r))) ; restrictions fns with :not-nil type are not considered here 
-                                                                                                    (= :ow.restrictions/type (first (keys r)))))) rest-maps)] ;restriction for dt is already considered with on-dt]
-                                                                 (if (seq on-set) [:owl:allValuesFrom (datatype-owl on-dt rests)] [:comment! "Unsupported datatype restriciton"]))) 
-                                                       (if-let [c (:min (:cardinality %))] [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
-                                                       (if-let [c (:max (:cardinality %))] [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
-                                                       (if-let [c (:eq (:cardinality %))] [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])]]) roles-construct)]
+               roles-owl (map #(vec [:rdfs:subClassOf 
+                                     [:owl:Restriction 
+                                      [:owl:onProperty	{:rdf:resource (str "#" (:property-name %))}]
+                                      (cond (and (seq (:ranges (meta (get obj-properties-ranges (:property-name %))))) (= :object (:property-type %))) 
+                                              [:owl:allValuesFrom {:rdf:resource (str "#" (first (:ranges (meta (get obj-properties-ranges (:property-name %))))))}]
+                                            (and (= :datatype (:property-type %)) (seq (:restrictions %))) 
+                                              (let [on-set (set (filter identity (map (fn [r] (:restriction-on (meta (eval r)))) (:restrictions %))))
+                                                    _ (assert (<= (count on-set) 1)) ;dt prop restrictions must be for one dt
+                                                    on-dt (if-let [n (first on-set)] (name n))
+                                                    rest-maps (map (fn [r] (apply hash-map ((juxt :restriction :restriction-with) (meta (eval r))))) (:restrictions %))
+                                                    rests (filter (fn [r] (not (or (nil? (first (keys r))) ;restrictions fns with no meta are not considered (supported) here
+                                                                                   (= :ow.restrictions/not-nil (first (keys r))) ; restrictions fns with :not-nil type are not considered here 
+                                                                                   (= :ow.restrictions/type (first (keys r)))))) rest-maps)] ;restriction for dt is already considered with on-dt]
+                                                (if (seq on-set) [:owl:allValuesFrom (datatype-owl on-dt rests)] [:comment! "Unsupported datatype restriciton"]))) 
+                                      (if-let [c (:min (:cardinality %))] [:owl:minCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
+                                      (if-let [c (:max (:cardinality %))] [:owl:maxCardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])
+                                      (if-let [c (:eq (:cardinality %))] [:owl:cardinality {:rdf:datatype "%26xsd;nonNegativeInteger"} (str c)])]]) roles-construct)]
            (flatten-1 [:owl:Class [{:rdf:about (str "#" nm)}]
                        (if (seq disjoints-owl) disjoints-owl [[:comment! "no disjoints"]])
                        (if (seq supers-owl) supers-owl [[:comment! "no super"]])
@@ -127,38 +128,40 @@
       (e/assort-things mp-domain)) 
     (create-file (:to-owl-location ow-config) (str ontology-name ".owl")
                  (binding [*prxml-indent* 2]
-                   (decode (with-out-str (prxml
-                                           [:decl!] n n
-                                           [:doctype! (str "rdf:RDF ["
-                                                           n t "<" e! " owl \"" owl "\">"
-                                                           n t "<" e! " dc \"" dc "\">"
-                                                           n t "<" e! " xsd \"" xsd "\">"
-                                                           n t "<" e! " rdfs \"" rdfs "\">"
-                                                           n t "<" e! " rdf \"" rdf "\">"
-                                                           n t "<" e! " "(ont-name-for-pr ow-config)" \"" (ont-full-ns ow-config) "#\">")
-                                            n "]"] n
-                                           [:rdf:RDF {:xmlns (str (ont-full-ns ow-config) "#")
-                                                      :xml:base (ont-full-ns ow-config)
-                                                      (keyword (str "xmlns:" (ont-name-for-pr ow-config))) (str (ont-full-ns ow-config) "#")
-                                                      :xmlns:owl owl
-                                                      :xmlns:dc dc
-                                                      :xmlns:xsd xsd
-                                                      :xmlns:rdf rdf
-                                                      :xmlns:rdfs rdfs}
-                                            [:owl:Ontology {:rdf:about (ont-full-ns ow-config)}
-                                             [:dc:title (s/capitalize ontology-name)]
-                                             [:dc:description "#FIXME Ontology Description#"]]
-                                            n n
-                                            [:comment! "### Datatype properties ###"]
-                                            n
-                                            (interpose n (get-dt-properties-owl))
-                                            n n
-                                            [:comment! "### Object properties ###"]
-                                            n
-                                            (interpose n (get-obj-properties-owl))
-                                            n n
-                                            [:comment! "### Classes ###"]
-                                            n
-                                            (interpose n (get-concepts-owl))
-                                            n
-                                            ])))))))
+                   (decode 
+                     (with-out-str 
+                       (prxml
+                         [:decl!] n n
+                         [:doctype! (str "rdf:RDF ["
+                                      n t "<" e! " owl \"" owl "\">"
+                                      n t "<" e! " dc \"" dc "\">"
+                                      n t "<" e! " xsd \"" xsd "\">"
+                                      n t "<" e! " rdfs \"" rdfs "\">"
+                                      n t "<" e! " rdf \"" rdf "\">"
+                                      n t "<" e! " "(ont-name-for-pr ow-config)" \"" (ont-full-ns ow-config) "#\">")
+                          n "]"] n
+                         [:rdf:RDF {:xmlns (str (ont-full-ns ow-config) "#")
+                                    :xml:base (ont-full-ns ow-config)
+                                    (keyword (str "xmlns:" (ont-name-for-pr ow-config))) (str (ont-full-ns ow-config) "#")
+                                    :xmlns:owl owl
+                                    :xmlns:dc dc
+                                    :xmlns:xsd xsd
+                                    :xmlns:rdf rdf
+                                    :xmlns:rdfs rdfs}
+                          [:owl:Ontology {:rdf:about (ont-full-ns ow-config)}
+                           [:dc:title (s/capitalize ontology-name)]
+                           [:dc:description "#FIXME Ontology Description#"]]
+                          n n
+                          [:comment! "### Datatype properties ###"]
+                          n
+                          (interpose n (get-dt-properties-owl))
+                          n n
+                          [:comment! "### Object properties ###"]
+                          n
+                          (interpose n (get-obj-properties-owl))
+                          n n
+                          [:comment! "### Classes ###"]
+                          n
+                          (interpose n (get-concepts-owl))
+                          n
+                          ])))))))
