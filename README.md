@@ -123,7 +123,7 @@ Build jar with [Leiningen][lein]
 -----------
 #### License
 
-~~Copyright (C) Nevena Vidojević 2011~~
+Copyright (C) Nevena Vidojević 2011
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
