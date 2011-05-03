@@ -123,9 +123,9 @@ Build jar with [Leiningen][lein]
 -----------
 #### License
 
-~~Copyright (C) Nevena Vidojević 2011
+~~Copyright (C) Nevena Vidojević 2011~~
 
-Distributed under the Eclipse Public License, the same as Clojure.~~
+Distributed under the Eclipse Public License, the same as Clojure.
 
 [lein]: https://github.com/technomancy/leiningen
 [owconfig]: https://github.com/nevenavv/OWand/blob/master/src/ow/core.clj#L4
