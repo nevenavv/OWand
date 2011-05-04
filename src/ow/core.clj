@@ -1,14 +1,17 @@
 (ns ow.core
-  (:use [ow.export :as e]))
+  (:use [ow.export :as e]
+        [ow.import :as i]))
 
-(def *ow-config* {:from-format :rdf/xml ;format of output owl file  (supported :rdf/xml, :turtle, :n3)
-                  :to-format :rdf/xml
+(def *ow-config* {:from-format :xml ;format of input owl file  (supported :xml, :turtle, :n3)
+                  :to-format :xml ;format of output owl file  (supported :xml, :turtle, :n3)
                   :ontology-name "example"
                   :from-owl-location "/" ;location of owl files for import (transformation to mp model)
                   :to-owl-location "ow-export/" ;location where owl generated file will be set
                   :mp-domain-ns-generated "domain" ;ns of generated magic potion model 
                   :mp-domain-ns-source 'ow.my-domain ;'ow.test.examples.my-domain ;source ns of magic potion model (to be transformed to owl)
                   :ont-root-domain-ns "http://example.org/ontologies/"
+                  :to-mp-location "ow-gen/"
+                  :owl-file-for-import "ow-export/example.owl"
                   })
 
 (def *ow-cc* *ow-config*)
@@ -45,6 +48,6 @@
   ([config-map]
     {:pre [(map? config-map)]}
     (let [new-config (merge *ow-config* config-map)]
-      (println "Now will come actual import code call...")
-      new-config)))
+      (println "Importing...")
+      (i/iimport new-config))))
 
