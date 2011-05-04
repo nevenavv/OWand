@@ -33,6 +33,17 @@
   [thing]
   ((trim-ending "\\?") thing))
 
+(defn ff-name
+  "Returns [folder file-name]"
+  [root-folder namesp]
+  (let [naked-dir (trim-ending-str (trim-leading-str root-folder "/") "/")
+        split-idx (.lastIndexOf namesp ".")
+        do-split (not= -1 split-idx)]
+    (if do-split
+      [(str naked-dir "/" (s/replace (.substring namesp 0 split-idx) #"\." "/")) (.substring namesp (inc split-idx))]
+      [naked-dir namesp])))
+
+
 ;; io ---------------------
 (defn create-file
   [dir file-name source]

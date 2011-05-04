@@ -4,7 +4,7 @@
 
 ;; formatters -------------
 (deftest test-datetime-for-xsd
-  (is (= "2012-12-22T00-00-00+01:00" (datetime-for-xsd (.parse (java.text.SimpleDateFormat. "dd/MM/yyyy") "22/12/2012")))))
+  (is (= "2012-12-22T00:00:00+01:00" (datetime-for-xsd (.parse (java.text.SimpleDateFormat. "dd/MM/yyyy") "22/12/2012")))))
 
 ;; string -----------------
 (deftest test-trim-leading-str
@@ -14,6 +14,10 @@
 (deftest test-trim-ending-str
   (is (= "/folder" (trim-ending-str "/folder/" "/")))
   (is (= "folder" (trim-ending-str "folder" "/"))))
+
+(deftest test-ff-name
+  (is (= ["barakuda/ne/ga/ti" "ve"] (ff-name "/barakuda" "ne.ga.ti.ve")))
+  (is (= ["barakuda" "nenene"] (ff-name "/barakuda" "nenene"))))
 
 ;; seq --------------------
 (deftest test-assoc-new
