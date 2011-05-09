@@ -7,13 +7,22 @@
         [clojure.contrib.with-ns]
         [ow.util]))
 
+(init-jena-framework)
+(register-rdf-ns :owl "http://www.w3.org/2002/07/owl#")
+(register-rdf-ns :rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+
 (defn modeling
   [file doc-format]
   (let [m (build-model :jena)
         _m (with-model m (document-to-model  (java.io.FileInputStream. file) doc-format))
         t (model-to-triples m)]
-    (println "Number of triples:" (count t))))
-
+    {:dt-properties (map #(assoc {:type :property} :name ((comp qname-local :?x) %))
+                      (model-query m (defquery
+                                       (query-set-type :select)
+                                       (query-set-vars [:?x])
+                                       (query-set-pattern
+                                         (make-pattern [[:?x [:rdf :type] [:owl :DatatypeProperty]]])))))}))
+     
 ;; pprint -----------------------------------
 
 (def holder)
@@ -56,9 +65,9 @@
       (pprint-logical-block :prefix "(property " :suffix ")"
         (print (:name ow.import/holder))
         (pprint-newline :mandatory)
-        ((formatter-out "~:<[~;~@{~w~^ ~:_~}~;]~:>") (:restrictions ow.import/holder)))
+        ((formatter-out "~:<[~;~@{~w~^ ~:_~}~;]~:>") (:restrictions ow.import/holder))
         (pprint-newline :mandatory)
-        ((formatter-out "~:<[~;~@{~w~^ ~:_~}~;]~:>") (:super ow.import/holder))
+        ((formatter-out "~:<[~;~@{~w~^ ~:_~}~;]~:>") (:super ow.import/holder)))
       (pprint-newline :mandatory)))) 
 
 
@@ -71,7 +80,7 @@
 
 (use-method mp-dispatch :namespace pprint-mp-ns)
 (use-method mp-dispatch :concept pprint-mp-concept)
-(use-method mp-dispatch :property pprint-mp-concept)
+(use-method mp-dispatch :property pprint-mp-property)
 
 ;; finish -----------------------------------
                        
@@ -79,11 +88,14 @@
   [{doc-format :from-format gen-folder :to-mp-location mp-ns :mp-domain-ns-generated
     from-file :owl-file-for-import}]
   (let [[folder file-name] (ff-name gen-folder mp-ns)
-        mp-ns-sym (symbol mp-ns)]
-    (modeling from-file doc-format)
+        mp-ns-sym (symbol mp-ns)
+        things (modeling from-file doc-format)]
     (create-file folder (str file-name ".clj")
       (with-out-str 
         (with-pprint-dispatch mp-dispatch 
           (pprint {:type :namespace :name mp-ns-sym :use '(org.uncomplicate.magicpotion 
                                                             org.uncomplicate.magicpotion.predicates 
-                                                            ow.restrictions)}))))))
+                                                            ow.restrictions)}))
+        (doall (map #(with-pprint-dispatch mp-dispatch 
+                       (pprint %))
+                 (:dt-properties things)))))))
