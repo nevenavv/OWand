@@ -7,22 +7,57 @@
         [clojure.contrib.with-ns]
         [ow.util]))
 
+(def concepts) 
+(def dt-properties) 
+(def obj-properties)
+
 (init-jena-framework)
 (register-rdf-ns :owl "http://www.w3.org/2002/07/owl#")
-(register-rdf-ns :rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+;(register-rdf-ns :rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 
 (defn modeling
-  [file doc-format]
-  (let [m (build-model :jena)
-        _m (with-model m (document-to-model  (java.io.FileInputStream. file) doc-format))
-        t (model-to-triples m)]
-    {:dt-properties (map #(assoc {:type :property} :name ((comp qname-local :?x) %))
-                      (model-query m (defquery
-                                       (query-set-type :select)
-                                       (query-set-vars [:?x])
-                                       (query-set-pattern
-                                         (make-pattern [[:?x [:rdf :type] [:owl :DatatypeProperty]]])))))}))
-     
+  [file doc-format domain-ns ontname]
+  (let [_m (document-to-model  (java.io.FileInputStream. file) doc-format)
+        t (model-to-triples *rdf-model*)
+        dt-properties (vals (reduce  #(let [dtpname ((comp qname-local :?dtp) %2)]
+                                        (if-let [super (:?dtpsuper %2)]
+                                          (assoc %1 dtpname {:name dtpname :type :property :super (conj (:super (get %1 dtpname)) (qname-local super))})
+                                          (assoc %1 dtpname {:name dtpname :type :property :super (:super (get %1 dtpname))})))
+                              {} (model-query *rdf-model* (defquery
+                                                            (query-set-type :select)
+                                                            (query-set-vars [:?dtp :?dtpsuper])
+                                                            (query-set-pattern
+                                                              (make-pattern [[:?dtp [:rdf :type] [:owl :DatatypeProperty]]
+                                                                             (optional [:?dtp [:rdfs :subPropertyOf] :?dtpsuper])]))))))
+        obj-properties (vals (reduce  #(let [opname ((comp qname-local :?op) %2)]
+                                        (if-let [super (:?opsuper %2)]
+                                          (assoc %1 opname {:name opname :type :property :super (conj (:super (get %1 opname)) (qname-local super))})
+                                          (assoc %1 opname {:name opname :type :property :super (:super (get %1 opname))})))
+                              {} (model-query *rdf-model* (defquery
+                                                            (query-set-type :select)
+                                                            (query-set-vars [:?op :?opsuper])
+                                                            (query-set-pattern
+                                                              (make-pattern [[:?op [:rdf :type] [:owl :ObjectProperty]]
+                                                                             (optional [:?op [:rdfs :subPropertyOf] :?opsuper])]))))))
+         concepts (vals (reduce  #(let [domainns (str (ont-full-ns {:ont-root-domain-ns domain-ns :ontology-name ontname}) "#")
+                                        cname ((comp qname-local :?c) %2)
+                                        ok-cname (= domainns ((comp qname-prefix :?c) %2))]
+                                    (if ok-cname    
+                                      (if-let [super (if (and (:?csuper %2) (= domainns ((comp qname-prefix :?csuper) %2))) ((comp qname-local :?csuper) %2))]
+                                        (assoc %1 cname {:name cname :type :concept :super (conj (:super (get %1 cname)) super)})
+                                        (assoc %1 cname {:name cname :type :concept :super (:super (get %1 cname))}))
+                                      %1))
+                              {} (model-query *rdf-model* (defquery
+                                                            (query-set-type :select)
+                                                            (query-set-vars [:?c :?csuper])
+                                                            (query-set-pattern
+                                                              (make-pattern [[:?c [:rdf :type] [:owl :Class]]
+                                                                             (optional [:?c [:rdfs :subClassOf] :?csuper])]))))))]
+    
+    (intern 'ow.import 'concepts concepts)
+    (intern 'ow.import 'dt-properties dt-properties)
+    (intern 'ow.import 'obj-properties obj-properties)))
+
 ;; pprint -----------------------------------
 
 (def holder)
@@ -50,7 +85,7 @@
   (binding [holder concept]
     (with-ns 'clojure.contrib.pprint
       (pprint-logical-block :prefix "(concept " :suffix ")"
-        (print (:name testing.pprinting/holder))
+        (print (:name ow.import/holder))
         (pprint-newline :mandatory)
         ((formatter-out "~:<[~;~@{~w~^~:@_~}~;]~:>") (:roles ow.import/holder))
         (pprint-newline :mandatory)
@@ -86,10 +121,10 @@
                        
 (defn iimport
   [{doc-format :from-format gen-folder :to-mp-location mp-ns :mp-domain-ns-generated
-    from-file :owl-file-for-import}]
+    from-file :owl-file-for-import domain-ns :ont-root-domain-ns ontname :ontology-name}]
   (let [[folder file-name] (ff-name gen-folder mp-ns)
         mp-ns-sym (symbol mp-ns)
-        things (modeling from-file doc-format)]
+        things (modeling from-file doc-format domain-ns ontname)]
     (create-file folder (str file-name ".clj")
       (with-out-str 
         (with-pprint-dispatch mp-dispatch 
@@ -98,4 +133,4 @@
                                                             ow.restrictions)}))
         (doall (map #(with-pprint-dispatch mp-dispatch 
                        (pprint %))
-                 (:dt-properties things)))))))
+                 (concat dt-properties obj-properties concepts)))))))
