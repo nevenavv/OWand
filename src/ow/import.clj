@@ -13,12 +13,10 @@
 
 (init-jena-framework)
 (register-rdf-ns :owl "http://www.w3.org/2002/07/owl#")
-;(register-rdf-ns :rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 
 (defn modeling
   [file doc-format domain-ns ontname]
   (let [_*rdf-model* (document-to-model  (java.io.FileInputStream. file) doc-format)
-        t (model-to-triples *rdf-model*)
         domainns (str (ont-full-ns {:ont-root-domain-ns domain-ns :ontology-name ontname}) "#")
         dt-properties (vals (reduce  #(let [dtpname ((comp qname-local :?dtp) %2)
                                             super (if (and (:?dtpsuper %2) (= domainns ((comp qname-prefix :?dtpsuper) %2))) ((comp qname-local :?dtpsuper) %2))]
