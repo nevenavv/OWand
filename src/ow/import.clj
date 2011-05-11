@@ -17,13 +17,12 @@
 
 (defn modeling
   [file doc-format domain-ns ontname]
-  (let [_m (document-to-model  (java.io.FileInputStream. file) doc-format)
+  (let [_*rdf-model* (document-to-model  (java.io.FileInputStream. file) doc-format)
         t (model-to-triples *rdf-model*)
         domainns (str (ont-full-ns {:ont-root-domain-ns domain-ns :ontology-name ontname}) "#")
-        dt-properties (vals (reduce  #(let [dtpname ((comp qname-local :?dtp) %2)]
-                                        (if-let [super (:?dtpsuper %2)]
-                                          (assoc %1 dtpname {:name dtpname :type :property :super (conj (:super (get %1 dtpname)) (qname-local super))})
-                                          (assoc %1 dtpname {:name dtpname :type :property :super (:super (get %1 dtpname))})))
+        dt-properties (vals (reduce  #(let [dtpname ((comp qname-local :?dtp) %2)
+                                            super (if (and (:?dtpsuper %2) (= domainns ((comp qname-prefix :?dtpsuper) %2))) ((comp qname-local :?dtpsuper) %2))]
+                                        (assoc %1 dtpname {:name dtpname :type :property :super (myb-conj (:super (get %1 dtpname)) super)}))
                               {} (model-query *rdf-model* (defquery
                                                             (query-set-type :select)
                                                             (query-set-vars [:?dtp :?dtpsuper])
