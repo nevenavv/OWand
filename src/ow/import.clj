@@ -19,6 +19,7 @@
   [file doc-format domain-ns ontname]
   (let [_m (document-to-model  (java.io.FileInputStream. file) doc-format)
         t (model-to-triples *rdf-model*)
+        domainns (str (ont-full-ns {:ont-root-domain-ns domain-ns :ontology-name ontname}) "#")
         dt-properties (vals (reduce  #(let [dtpname ((comp qname-local :?dtp) %2)]
                                         (if-let [super (:?dtpsuper %2)]
                                           (assoc %1 dtpname {:name dtpname :type :property :super (conj (:super (get %1 dtpname)) (qname-local super))})
@@ -29,23 +30,24 @@
                                                             (query-set-pattern
                                                               (make-pattern [[:?dtp [:rdf :type] [:owl :DatatypeProperty]]
                                                                              (optional [:?dtp [:rdfs :subPropertyOf] :?dtpsuper])]))))))
-        obj-properties (vals (reduce  #(let [opname ((comp qname-local :?op) %2)]
-                                        (if-let [super (:?opsuper %2)]
-                                          (assoc %1 opname {:name opname :type :property :super (conj (:super (get %1 opname)) (qname-local super))})
-                                          (assoc %1 opname {:name opname :type :property :super (:super (get %1 opname))})))
+        obj-properties (vals (reduce  #(let [opname ((comp qname-local :?op) %2)
+                                             rng (myb-str (if (and (:?c %2) (= domainns ((comp qname-prefix :?c) %2))) ((comp qname-local :?c) %2)) "?")
+                                             super (if (and (:?opsuper %2) (= domainns ((comp qname-prefix :?opsuper) %2))) ((comp qname-local :?opsuper) %2))]
+                                          (assoc %1 opname {:name opname :type :property 
+                                                            :super (myb-conj (:super (get %1 opname)) super) 
+                                                            :restrictions (myb-conj (:restrictions (get %1 opname)) rng)}))
                               {} (model-query *rdf-model* (defquery
                                                             (query-set-type :select)
-                                                            (query-set-vars [:?op :?opsuper])
+                                                            (query-set-vars [:?op :?opsuper :?c])
                                                             (query-set-pattern
                                                               (make-pattern [[:?op [:rdf :type] [:owl :ObjectProperty]]
-                                                                             (optional [:?op [:rdfs :subPropertyOf] :?opsuper])]))))))
-         concepts (vals (reduce  #(let [domainns (str (ont-full-ns {:ont-root-domain-ns domain-ns :ontology-name ontname}) "#")
-                                        cname ((comp qname-local :?c) %2)
-                                        ok-cname (= domainns ((comp qname-prefix :?c) %2))]
+                                                                             (optional [:?op [:rdfs :subPropertyOf] :?opsuper])
+                                                                             (optional [:?op [:rdfs :range] :?c])]))))))
+         concepts (vals (reduce  #(let [cname ((comp qname-local :?c) %2)
+                                        ok-cname (= domainns ((comp qname-prefix :?c) %2))
+                                        super (if (and (:?csuper %2) (= domainns ((comp qname-prefix :?csuper) %2))) ((comp qname-local :?csuper) %2))]
                                     (if ok-cname    
-                                      (if-let [super (if (and (:?csuper %2) (= domainns ((comp qname-prefix :?csuper) %2))) ((comp qname-local :?csuper) %2))]
-                                        (assoc %1 cname {:name cname :type :concept :super (conj (:super (get %1 cname)) super)})
-                                        (assoc %1 cname {:name cname :type :concept :super (:super (get %1 cname))}))
+                                      (assoc %1 cname {:name cname :type :concept :super (myb-conj (:super (get %1 cname)) super)})
                                       %1))
                               {} (model-query *rdf-model* (defquery
                                                             (query-set-type :select)

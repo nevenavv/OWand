@@ -107,6 +107,16 @@
            ts (vec (distinct ts-pre))]
        (with-meta ts old-meta))))
 
+(defn myb-conj
+  "conj-ing if x is not nil"  
+  [coll x]
+  (if x (conj coll x) coll))
+
+(defn myb-str
+  "str-ing if a and b are not nil"  
+  [a b]
+  (if (and a b) (str a b)))
+
 ;; xml --------------------
 (defn encode
   ; from ring (url-encode)
