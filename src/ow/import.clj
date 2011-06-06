@@ -62,7 +62,7 @@
 (def holder)
 
 ;;binding & with-ns is necessary because pprint-logical-block macro is
-;;using private var form pprint namespace
+;;using private var from pprint namespace
 (defn pprint-mp-ns [nsp]
   (binding [holder nsp]
     (with-ns 'clojure.contrib.pprint
@@ -118,8 +118,8 @@
 
 ;; finish -----------------------------------
                        
-(defn iimport
-  [{doc-format :from-format gen-folder :to-mp-location mp-ns :mp-domain-ns-generated
+(defn ow-import
+  [{doc-format :from-owl-format gen-folder :to-mp-dir mp-ns :mp-domain-gen-ns
     from-file :owl-file-for-import domain-ns :ont-root-domain-ns ontname :ontology-name}]
   (let [[folder file-name] (ff-name gen-folder mp-ns)
         mp-ns-sym (symbol mp-ns)

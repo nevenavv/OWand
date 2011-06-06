@@ -110,11 +110,11 @@
 
 (defn export
   [ow-config]
-  (let [mp-domain (:mp-domain-ns-source ow-config)
+  (let [mp-domain (symbol (:mp-domain-ns-source ow-config))
         ontology-name (:ontology-name ow-config)]
     (like mp-domain)
     (e/assort-things mp-domain)
-    (create-file (:to-owl-location ow-config) (str ontology-name ".owl")
+    (create-file (:to-owl-dir ow-config) (str ontology-name ".owl")
                  (binding [*prxml-indent* 2]
                    (decode 
                      (with-out-str 
