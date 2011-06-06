@@ -20,7 +20,7 @@ Generated `OWL` file is [RDF Valid][rdfv] and [Protégé][prot] sucessfully pars
 Generated `OWL` model is in `RDF/XML` syntax and can be easily transformed to other `OWL`(`RDF`) syntax formats using available tools.
 
 ###Import
-`Nil`
+`in progress`
 	
 Details
 ----
